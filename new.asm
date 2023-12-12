@@ -1,3 +1,4 @@
+
 .data
 	msg1: .asciiz "Welcome to tic tac toe"
 	turn1: .asciiz "Player 1's turn: "
@@ -55,9 +56,6 @@ play:
 
 #display the initial sample(location of the tic-tac-toe[1-9])
 #load and display line1, line2, line3, line4
-#display the initial sample(location of the tic-tac-toe[1-9])
-#load and display line1, line2, line3, line4
-# Function to display the initial sample
 displaysample:
     # Step 1: Allocate stack space
     subu $sp, $sp, 20
@@ -107,7 +105,6 @@ displaysample:
 
     # Continue with the control flow
     j turn
-
 # Function to initialize display
 display:
     # Step 1: Allocate stack space
@@ -128,85 +125,51 @@ display:
 
     # Step 5: Deallocate stack space
     addu $sp, $sp, 8
+    
+# Function to display newline for displaying griddisplayline
 
-    # Continue with the control flow
-    j $ra
-
-# Function to display newline for displaying grid
 displayline:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
+   
     addi $s1, $s1, 3
     jal newline
     jal displaygrid
 
-    # Step D: Return to caller
-    j $ra
 
-# Function to display all the information in the grid
+#displaying all the information in grid
 displaygrid:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	beq $s0, 9, checkwinall #if $s0==9(all the value in grid are displayed), check the winning condition
+	beq $s0, $s1, displayline
+	addi $s0, $s0, 1 #increment $s0
+	la $t2, grid #load the current grid address
+	add $t2, $t2, $s0  #add the address with $s0
+	lb $t3, ($t2) #load byte of $t2 to $t3
+	jal addspace #to make space
+	beq $t3, 0, displayspace #if the value in $t3==0 jump to displayspace
+	beq $t3, 1, displayx #if $t3==1 jump to displayx
+	beq $t3, 2, displayo #if $t3==2 jump to displayo
 
-    # Step B: Business logic
-    beq $s0, 9, checkwinall
-    beq $s0, $s1, displayline
-    addi $s0, $s0, 1
-    la $t2, grid
-    add $t2, $t2, $s0
-    lb $t3, ($t2)
-    jal addspace
-    beq $t3, 0, displayspace
-    beq $t3, 1, displayx
-    beq $t3, 2, displayo
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to display X
+#to display 1 to x
 displayx:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $a0, 88 #load x
+	li $v0, 11 #print x
+	syscall
+	j displaygrid
 
-    # Step B: Business logic
-    li $a0, 88
-    li $v0, 11
-    syscall
-    j displaygrid
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to display O
+#to display 2 to O
 displayo:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $a0, 79 #load O
+	li $v0, 11 #print O
+	syscall
+	j displaygrid
 
-    # Step B: Business logic
-    li $a0, 79
-    li $v0, 11
-    syscall
-    j displaygrid
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to display ? if the value in grid is 0
+#to display ? if the value in grid is 0
 displayspace:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $a0, 63 #load ?
+	li $v0, 11 #print ?
+	syscall
+	j displaygrid #jump back to grid
 
-    # Step B: Business logic
-    li $a0, 63
-    li $v0, 11
-    syscall
-    j displaygrid  # Jump back to grid
-
-    # Step D: Return to caller
-    j $ra
-
+#get input from user
 # Function to get input from user
 getinput:
     # Step 1: Allocate stack space
@@ -227,317 +190,180 @@ getinput:
     # Step 5: Deallocate stack space
     addu $sp, $sp, 4
 
-    # Return to previous function
-    jr $ra
-
-# Function to check if the input is within the range of [1-9]
+#check the input is it within the range of [1-9] or not
 checkinput:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	la $t1, grid  #load the grid address
+	add $t1, $t1, $s2 #add the $s2 to $t1 to get the exact location
+	lb $t2, ($t1) #load the $t1 into $t2
+	bne $t2, 0, turn # check if $t2!=0 jump to turn
+	bge $s2, 10, turn # check if $s2 >= 10, jump to turn
+	ble $s2, 0, turn # check if $s2 <= 0, jump to turn
+	jr $ra #return to previous function
 
-    # Step B: Business logic
-    la $t1, grid
-    add $t1, $t1, $s2
-    lb $t2, ($t1)
-    bne $t2, 0, turn
-    bge $s2, 10, turn
-    ble $s2, 0, turn
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to store the input into grid
+#store the input into grid	
 storeinput:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	addi $s4, $s4, 1 #increment $s4 for every turn
+	beq $s3, 0, storex #if player 1's turn jump to storex
+	beq $s3, 1, storeo #if player 2's turn jump to storeo
 
-    # Step B: Business logic
-    addi $s4, $s4, 1
-    beq $s3, 0, storex
-    beq $s3, 1, storeo
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to store player 1's turn
+#to store the player 1's turn
 storex:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    la $t1, grid
-    add $t1, $t1, $s2
-    li $t2, 1
-    sb $t2, ($t1)
-    li $s3, 1
-    j display
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to store player 2's turn
+	la $t1, grid #load the grid
+	add $t1, $t1, $s2 #add $s2 location to $t1 to get the exact location
+	li $t2, 1 
+	sb $t2, ($t1) #store $t1 to $t2
+	li $s3, 1 #change the turn to player 2
+	j display #jump to display
+	
+#to store the player 2's turn
 storeo:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	la $t1, grid
+	add $t1, $t1, $s2
+	li $t2, 2
+	sb $t2, ($t1)
+	li $s3, 0 #change the turn to player 1
+	j display
 
-    # Step B: Business logic
-    la $t1, grid
-    add $t1, $t1, $s2
-    li $t2, 2
-    sb $t2, ($t1)
-    li $s3, 0
-    j display
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values are displayed and initiate win condition checks
+#to check the winning condition
 checkwinall:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	bge $s4, 5, wincondition1 #if $s4>=5 check the winning condition)
+	j turn #if not jump to turn
 
-    # Step B: Business logic
-    bge $s4, 5, wincondition1
-    j turn
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values in the first row are the same
+#check if all the values in first row has the same value
 wincondition1:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0 #set $s6 to 0
+	li $s5, 1 #set$s5 to 1
+	la $t1, grid #load grid to $t1
+	add $t1, $t1, $s5 #add $t1 + $s5 to access the value in position 1
+	lb $t2, ($t1) #load $t1 to $t2
+	addi $t1, $t1, 1 #increment address $t1 + 1 
+	lb $t3, ($t1) #load $t1 to $t3
+	addi $t1, $t1, 1 #increment address $t1 + 1 
+	lb $t4, ($t1) #load $t1 to $t4
+	add $s6, $s6, $t2 #add $s6 +$t2 for further checking
+	bne $t2, $t3, wincondition2 #check if the values are same, jump to next wincondition
+	bne $t3, $t4, wincondition2 #check if the values are same, jump to next wincondition
+	beq $t2, 0, wincondition2 #check if $t2 is equal to 0 which is empty, jump to next wincondition
+	j win #else jump to win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 1
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 1
-    lb $t3, ($t1)
-    addi $t1, $t1, 1
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition2
-    bne $t3, $t4, wincondition2
-    beq $t2, 0, wincondition2
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values in the first column are the same
+#check if all the values in first column has the same value
 wincondition2:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 1
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 3
+	lb $t3, ($t1)
+	addi $t1, $t1, 3
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition3
+	bne $t3, $t4, wincondition3
+	beq $t2, 0, wincondition3
+	j win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 1
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 3
-    lb $t3, ($t1)
-    addi $t1, $t1, 3
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition3
-    bne $t3, $t4, wincondition3
-    beq $t2, 0, wincondition3
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if diagonal positions have the same value
+#check if the position 1,5,9(diagonal) have the same value
 wincondition3:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 1
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 4
+	lb $t3, ($t1)
+	addi $t1, $t1, 4
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition4
+	bne $t3, $t4, wincondition4
+	beq $t2, 0, wincondition4
+	j win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 1
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 4
-    lb $t3, ($t1)
-    addi $t1, $t1, 4
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition4
-    bne $t3, $t4, wincondition4
-    beq $t2, 0, wincondition4
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values in the second column are the same
+#check if all the values in second column have the same value
 wincondition4:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 2
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 3
+	lb $t3, ($t1)
+	addi $t1, $t1, 3
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition5
+	bne $t3, $t4, wincondition5
+	beq $t2, 0, wincondition5
+	j win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 2
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 3
-    lb $t3, ($t1)
-    addi $t1, $t1, 3
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition5
-    bne $t3, $t4, wincondition5
-    beq $t2, 0, wincondition5
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values in the second row are the same
+#check if all the values in second row are same
 wincondition5:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 4
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 1
+	lb $t3, ($t1)
+	addi $t1, $t1, 1
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition6
+	bne $t3, $t4, wincondition6
+	beq $t2, 0, wincondition6
+	j win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 4
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 1
-    lb $t3, ($t1)
-    addi $t1, $t1, 1
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition6
-    bne $t3, $t4, wincondition6
-    beq $t2, 0, wincondition6
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if diagonal positions have the same value
+#check if positon 3,5,7(second diagonal) are same
 wincondition6:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 3
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 2
+	lb $t3, ($t1)
+	addi $t1, $t1, 2
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition7
+	bne $t3, $t4, wincondition7
+	beq $t2, 0, wincondition7
+	j win
 
-    # Step B: Business logic
-    li $s6, 0
-    li $s5, 3
-    la $t1, grid
-    add $t1, $t1, $s5
-    lb $t2, ($t1)
-    addi $t1, $t1, 2
-    lb $t3, ($t1)
-    addi $t1, $t1, 2
-    lb $t4, ($t1)
-    add $s6, $s6, $t2
-    bne $t2, $t3, wincondition7
-    bne $t3, $t4, wincondition7
-    beq $t2, 0, wincondition7
-    j win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to check if all values in the third column are the same
+#check all the values in third column are same
 wincondition7:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
+	li $s6, 0
+	li $s5, 3
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 3
+	lb $t3, ($t1)
+	addi $t1, $t1, 3
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, wincondition8
+	bne $t3, $t4, wincondition8
+	beq $t2, 0, wincondition8
+	j win
 
-    # Step B: Business logic
-    li $s6, 
-
-# Function to make a new line
-newline:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    li $a0, 10   # load line
-    li $v0, 11   # print line
-    syscall
-
-    # Step D: Return to caller
-    jr $ra
-
-# Function to add space
-addspace:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    li $a0, 32   # load space
-    li $v0, 11   # print space
-    syscall
-
-    # Step D: Return to caller
-    jr $ra
-
-# Function to display the winner
-win:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    beq $s6, 1, player1win   # check if $s6 == 1(x), jump to player1win
-    beq $s6, 2, player2win   # check if $s6 == 2(O), jump to player2win
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to load and display win1
-player1win:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    j newline
-    la $a0, win1
-    li $v0, 4
-    syscall
-    j end
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to load and display win2
-player2win:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    j newline
-    la $a0, win2
-    li $v0, 4
-    syscall
-    j end
-
-    # Step D: Return to caller
-    j $ra
-
-# Function to load and display lastdraw
-draw:
-    # Step A: Read input args from the stack
-    # No input args to read in this case
-
-    # Step B: Business logic
-    j newline
-    la $a0, lastdraw
-    li $v0, 4
-    syscall
-    j end
-
-    # Step D: Return to caller
-    j $ra
-
+#check if all the values in third row are same
+wincondition8:
+	li $s6, 0
+	li $s5, 7
+	la $t1, grid
+	add $t1, $t1, $s5
+	lb $t2, ($t1)
+	addi $t1, $t1, 1
+	lb $t3, ($t1)
+	addi $t1, $t1, 1
+	lb $t4, ($t1)
+	add $s6, $s6, $t2
+	bne $t2, $t3, turn #check if $t2!=t$t3 return to turn
+	bne $t3, $t4, turn #check if $t4!=t$t3 return to turn
+	beq $t2, 0, turn #check if $t2 has mssing values, retur to turn
+	j win #else jump to win
 #to make new line	
 newline:
 	li $a0, 10 #load line
