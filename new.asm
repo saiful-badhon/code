@@ -58,7 +58,7 @@ play:
 #load and display line1, line2, line3, line4
 displaysample:
     # Step 1: Allocate stack space
-    subu $sp, $sp, 20
+    addiu $sp, $sp, -20
 
     # Step 2: Write to stack
     sw $ra, 16($sp)
@@ -101,14 +101,14 @@ displaysample:
     lw $s3, 0($sp)
 
     # Step 5: Deallocate stack space
-    addu $sp, $sp, 20
+    addiu $sp, $sp, 20
 
     # Continue with the control flow
     j turn
 # Function to initialize display
 display:
     # Step 1: Allocate stack space
-    subu $sp, $sp, 8
+    addiu $sp, $sp, -8
 
     # Step 2: Write to stack
     sw $ra, 4($sp)
@@ -124,7 +124,7 @@ display:
     lw $s0, 0($sp)
 
     # Step 5: Deallocate stack space
-    addu $sp, $sp, 8
+    addiu $sp, $sp, 8
     
 # Function to display newline for displaying griddisplayline
 
@@ -173,7 +173,7 @@ displayspace:
 # Function to get input from user
 getinput:
     # Step 1: Allocate stack space
-    subu $sp, $sp, 4
+    addiu $sp, $sp, -4
 
     # Step 2: Write to stack
     sw $ra, 0($sp)
@@ -188,7 +188,7 @@ getinput:
     lw $ra, 0($sp)
 
     # Step 5: Deallocate stack space
-    addu $sp, $sp, 4
+    addiu $sp, $sp, 4
 
 #check the input is it within the range of [1-9] or not
 checkinput:
